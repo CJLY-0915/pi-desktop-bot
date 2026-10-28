@@ -1,11 +1,12 @@
 "use strict";
 
+// 自定位：本脚本必须位于安装包的 scripts/ 下，require 一律使用字面量相对路径；
+// 动态拼接路径会被插件中心审计判为动态模块加载（SEC003）。
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const Module = require("node:module");
-const root = path.resolve(process.argv[2] || path.join(__dirname, ".."));
 const originalLoad = Module._load;
 Module._load = function (name, ...args) {
   if (!Module.isBuiltin(name) && !name.startsWith(".") && !path.isAbsolute(name)) {
@@ -13,8 +14,6 @@ Module._load = function (name, ...args) {
   }
   return originalLoad.call(this, name, ...args);
 };
-// 以隔离安装目录为基准加载：require 的 specifier 必须是字面量，动态拼接会被插件中心审计判为动态模块加载。
-const loadFromRoot = Module.createRequire(path.join(root, "package.json"));
 
 async function main() {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "bot-install-smoke-"));
@@ -28,19 +27,19 @@ async function main() {
     events: { on() {}, off() {} },
   };
   try {
-    plugin = loadFromRoot("./main.js");
-    const qr = loadFromRoot("./lib/qr.cjs");
+    plugin = require("../main.js");
+    const qr = require("../lib/qr.cjs");
     const png = await qr.qrDataUrl(qr.BOTFATHER_URL);
     assert.match(png, /^data:image\/png;base64,/);
     assert.equal(Buffer.from(png.split(",")[1], "base64").subarray(1, 4).toString(), "PNG");
-    const feishu = loadFromRoot("./vendor/feishu.cjs");
-    const dingtalk = loadFromRoot("./vendor/dingtalk.cjs");
+    const feishu = require("../vendor/feishu.cjs");
+    const dingtalk = require("../vendor/dingtalk.cjs");
     assert.equal(typeof feishu.WSClient, "function");
     assert.equal(typeof feishu.EventDispatcher, "function");
     assert.equal(typeof dingtalk.DWClient, "function");
     assert.equal(typeof dingtalk.TOPIC_ROBOT, "string");
-    loadFromRoot("./lib/feishu.cjs");
-    loadFromRoot("./lib/dingtalk.cjs");
+    require("../lib/feishu.cjs");
+    require("../lib/dingtalk.cjs");
     await plugin.onLoad();
     assert.equal(registeredCommand.id, "mobile-remote.openPanel");
     assert.equal(typeof registeredService.start, "function");
