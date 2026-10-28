@@ -2,6 +2,11 @@
 
 本文件记录 Pi-Desktop 机器人插件的变更。格式遵循 Keep a Changelog。
 
+## [1.0.1]
+
+- 修复手机端工具条目丢失操作目标的问题：宿主规整参数别名时 `command`/`file_path` 位置可能保留空串，旧逻辑把空串当作有效目标，导致 Write/Edit/Read 在手机端只显示「完成 · Write」而没有操作对象。工具摘要改为把空串按缺失处理并回落到真实 `path`，Bash 等命令类工具行为不变。
+- 新增回归测试覆盖 `command`/`cmd`/`file_path`/`filePath` 空串与真实 `path` 的组合；283 项测试通过。
+
 ## [1.0.0]
 
 首个正式版本：通过飞书、Telegram、微信官方 iLink 协议和钉钉 Stream 接入本机 PI-Desktop Agent，发送任务、接收结果、回答交互问题、中断执行与审阅 Plan 检查点；含控制面板、扫码接入、配对码校验、文件回传、回复颗粒度与项目范围设置。
