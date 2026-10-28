@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "id": "pi.mobile-remote-control",
+  "name": "Pi-Desktop 机器人",
+  "version": "0.1.8",
+  "description": "Connect PI-Desktop Agent to Feishu, Telegram and WeChat bots. Send tasks, receive results and respond to Agent questions from your chat tools.",
+  "i18n": {
+    "en": {
+      "name": "Pi-Desktop Bots",
+      "description": "Connect PI-Desktop Agent to Feishu, Telegram and WeChat bots. Send tasks, receive results and respond to Agent questions from your chat tools.",
+      "safetyNotes": "Connector credentials stay in the plugin's private data directory and are never sent anywhere except the selected platform's official API endpoints. Inbound messages must pass a pairing code before any chat is allowed to drive a session. Every remote prompt is injected into the target session through the host's own desktop.control gateway, so session permissions, project scope and audit trails stay exactly as they are on the desktop. The plugin declares only the platform domains it needs and has no broad network permission."
+    },
+    "zh-CN": {
+      "name": "Pi-Desktop 机器人",
+      "description": "通过飞书、Telegram、微信等聊天工具接入 PI-Desktop Agent：发送任务、接收结果、回答问题和审阅计划。",
+      "safetyNotes": "连接凭据只保存在插件私有数据目录，除所选平台的官方 API 端点外不发送到任何地方。所有入站消息必须先通过配对码校验，未配对的聊天无法驱动任何会话。远程指令统一经由宿主 desktop.control 网关注入目标会话，会话权限、项目范围与审计记录与桌面端完全一致。插件仅声明所需平台域名，不申请广域网络权限。"
+    }
+  },
+  "license": "MIT",
+  "main": "main.js",
+  "engines": {
+    "piDesktop": ">=0.21.0"
+  },
+  "permissions": [
+    "desktop.control",
+    "agent.extension",
+    "agent.tool.register",
+    "background.service",
+    "ui.panel",
+    "shell.openExternal",
+    "clipboard.write"
+  ],
+  "icon": "icon.svg",
+  "net": {
+
+    "domains": [
+      "open.feishu.cn",
+      "msg-frontier.feishu.cn",
+      "accounts.feishu.cn",
+      "open-api.dingtalk.com",
+      "oapi.dingtalk.com",
+      "api.dingtalk.com",
+      "api.telegram.org",
+      "ilinkai.weixin.qq.com"
+    ]
+  },
+  "contributes": {
+    "services": [
+      {
+        "id": "bridge",
+        "label": "Pi-Desktop bot bridge"
+      }
+    ],
+    "agentExtensions": [
+      "extensions/agent.js"
+    ],
+    "agentTools": [
+      {
+        "name": "send_file_to_phone",
+        "description": "将本机生成的文件（报告、压缩包、导出数据等）作为文件直接发送到远程聊天（飞书/钉钉/Telegram）。仅在任务由远程聊天发起时使用。",
+        "risk": "medium",
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "本地绝对路径，或相对当前工作区的路径"
+            },
+            "displayName": {
+              "type": "string",
+              "description": "远程聊天中显示的文件名（可选）"
+            }
+          },
+          "required": ["path"]
+        }
+      }
+    ],
+    "commands": [
+      {
+        "id": "mobile-remote.openPanel",
+        "title": "Pi-Desktop 机器人: 打开控制面板",
+        "keywords": ["remote", "远程", "control", "控制", "feishu", "飞书", "dingtalk", "钉钉", "telegram", "weixin", "微信", "bot", "机器人"]
+      }
+    ]
+  },
+  "settings": [
+    {
+      "key": "channel",
+      "title": "通道（feishu / dingtalk / telegram / weixin）",
+      "type": "select",
+      "default": "feishu",
+      "enum": [
+        { "label": "飞书 Feishu（长连接）", "value": "feishu" },
+        { "label": "钉钉 DingTalk（Stream）", "value": "dingtalk" },
+        { "label": "Telegram（长轮询）", "value": "telegram" },
+        { "label": "微信 Weixin（iLink 扫码）", "value": "weixin" }
+      ],
+      "scope": "plugin"
+    },
+    {
+      "key": "requirePairing",
+      "title": "要求配对码（关闭后任何聊天都可驱动会话，不建议）",
+      "type": "boolean",
+      "default": true,
+      "scope": "plugin"
+    },
+    {
+      "key": "autoCreateSession",
+      "title": "首个指令自动创建并绑定会话",
+      "type": "boolean",
+      "default": true,
+      "scope": "plugin"
+    },
+    {
+      "key": "resultChunkChars",
+      "title": "结果分段字数（单条消息上限）",
+      "type": "number",
+      "default": 800,
+      "scope": "plugin"
+    },
+    {
+      "key": "telegramReplyMode",
+      "title": "Telegram 回复颗粒度",
+      "type": "select",
+      "default": "standard",
+      "enum": [
+        { "label": "标准回复", "value": "standard" },
+        { "label": "完整回复", "value": "full" },
+        { "label": "摘要回复", "value": "summary" }
+      ],
+      "scope": "plugin"
+    },
+    {
+      "key": "weixinReplyMode",
+      "title": "微信回复颗粒度",
+      "type": "select",
+      "default": "standard",
+      "enum": [
+        { "label": "标准回复", "value": "standard" },
+        { "label": "完整回复", "value": "full" },
+        { "label": "摘要回复", "value": "summary" }
+      ],
+      "scope": "plugin"
+    },
+    {
+      "key": "maxQueuePerChat",
+      "title": "单聊天排队指令数",
+      "type": "number",
+      "default": 3,
+      "scope": "plugin"
+    },
+
+    {
+      "key": "allowDangerousRemote",
+      "title": "允许远程配置切换（项目、模型、思考、模式和权限，默认开启）",
+      "type": "boolean",
+      "default": true,
+      "scope": "plugin"
+    }
+  ],
+  "activationEvents": [
+    "onStartup",
+    "onCommand:mobile-remote.openPanel"
+  ],
+  "ui": {
+    "panel": "renderer/index.html",
+    "width": 680,
+    "height": 840,
+    "title": {
+      "en": "Pi-Desktop Bots",
+      "zh-CN": "Pi-Desktop 机器人"
+    }
+  }
+}

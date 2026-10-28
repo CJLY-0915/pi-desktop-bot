@@ -1,0 +1,23 @@
+{
+  "name": "pi-plugin-remote-control",
+  "version": "0.1.8",
+  "private": true,
+  "description": "Connect PI-Desktop Agent to Feishu, Telegram and WeChat bots for tasks, results and interactive questions.",
+  "main": "main.js",
+  "scripts": {
+    "build": "node scripts/build-vendor.cjs",
+    "test": "node --test test/*.test.cjs"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@larksuiteoapi/node-sdk": "^1.76.0",
+    "dingtalk-stream": "^2.1.5",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0E1530"/>
+      <stop offset="1" stop-color="#16224A"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38E1B0"/>
+      <stop offset="1" stop-color="#4CC9F0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景：整幅铺满，无圆角 -->
+  <rect x="0" y="0" width="512" height="512" fill="url(#bg)"/>
+
+  <!-- 显示器主体 -->
+  <rect x="116" y="132" width="280" height="208" rx="26"
+        fill="#0F1A38" stroke="url(#accent)" stroke-width="8"/>
+  <!-- 支架与底座 -->
+  <rect x="228" y="352" width="56" height="44" fill="#0F1A38"/>
+  <rect x="176" y="396" width="160" height="18" rx="9" fill="url(#accent)"/>
+
+  <!-- 命令行提示符 > -->
+  <path d="M168 196 L214 246 L168 296" fill="none"
+        stroke="url(#accent)" stroke-width="14"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 光标横线 -->
+  <line x1="238" y1="296" x2="330" y2="296"
+        stroke="url(#accent)" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- 远程信号波（右上） -->
+  <g fill="none" stroke="url(#accent)" stroke-width="8" stroke-linecap="round">
+    <path d="M372 96 a44 44 0 0 1 44 44"/>
+    <path d="M396 72 a68 68 0 0 1 68 68"/>
+  </g>
+  <circle cx="360" cy="140" r="12" fill="url(#accent)"/>
+</svg>

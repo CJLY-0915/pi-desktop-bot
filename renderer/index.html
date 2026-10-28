@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>Pi-Desktop 机器人</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M8 9h8M8 13h5M7 19l-3 2v-6a8 8 0 1 1 3 4Z" /></svg>
+        </div>
+        <div><h1>Pi-Desktop 机器人</h1></div>
+        <span class="overview" id="overview">正在读取</span>
+      </header>
+
+      <div class="workspace">
+        <aside class="sidebar" aria-label="机器人渠道">
+          <div class="side-label">选择渠道</div>
+          <nav id="channelList"></nav>
+          <div class="side-note"><span class="tiny-dot"></span>各渠道可同时启用</div>
+        </aside>
+
+        <main class="content" id="content">
+          <header class="channel-head">
+            <img class="channel-logo" id="headLogo" alt="" />
+            <div class="head-copy"><h2 id="headName">飞书</h2><p id="headTransport">长连接 · 无需公网地址</p></div>
+            <div class="run-control">
+              <span class="status" id="headStatus"><span class="status-dot"></span>未关联</span>
+              <button class="switch" id="toggleBtn" type="button" role="switch" aria-checked="false" aria-label="启用当前渠道" disabled><span></span></button>
+            </div>
+          </header>
+
+          <div class="alert hidden" id="errorPanel" role="alert">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5m0 3h.01M10.3 3.8 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0Z" /></svg>
+            <div><strong id="errorTitle">连接失败</strong><p id="errorText"></p></div>
+          </div>
+          <div class="hidden" id="deliveryRetryPanel" role="status"><span>结果发送失败，可重发完整正文；可能重复已收到的内容。</span><div id="deliveryRetryActions"></div></div>
+
+          <section class="setup-section" aria-labelledby="connectTitle">
+            <div class="section-heading"><div><h3 id="connectTitle">连接机器人</h3></div><span class="saved-label hidden" id="savedLabel">已绑定</span></div>
+            <p class="section-description" id="connectDescription"></p>
+            <p class="coming-note hidden" id="comingNote">即将支持，敬请期待。</p>
+
+            <div class="connected hidden" id="connectedPanel">
+              <div class="connected-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-8" /></svg></div>
+              <div><strong id="connectedTitle">已连通</strong><p id="connectedHint">在机器人对话中直接发送指令即可远程控制</p></div>
+              <button class="button secondary small" id="unbindBtn" type="button">解绑</button>
+            </div>
+
+            <div id="credentialSetup">
+              <div id="qrAction" class="qr-action hidden"><button class="button secondary" id="scanBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5m6 0h5v5m0 6v5h-5M9 20H4v-5M8 8h3v3H8zm5 0h3v3h-3zm-5 5h3v3H8zm5 0h3v3h-3z" /></svg><span id="scanBtnText">扫码连接</span></button></div>
+              <div class="qr-panel hidden" id="qrPanel">
+                <div class="qr-frame"><img id="qrImage" alt="手机扫码连接机器人" hidden /><div class="qr-loading" id="qrLoading">正在生成</div></div>
+                <div class="qr-copy"><strong id="qrHint">请使用手机扫码</strong><div class="user-code hidden" id="qrUserCode"></div><span class="qr-status" id="qrStatus" role="status"></span><button class="text-button hidden" id="qrOpenBtn" type="button">在浏览器中打开<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5m0-5-8 8M9 5H5v14h14v-4" /></svg></button><button class="text-button" id="qrCancelBtn" type="button">取消扫码</button></div>
+              </div>
+              <div class="qr-panel hidden" id="botfatherPanel"><div class="qr-frame"><img id="botfatherImage" alt="扫码打开 Telegram BotFather" /></div><div class="qr-copy"><strong>扫码打开 BotFather，创建机器人并粘贴 Token</strong><span class="mono">@BotFather</span><span id="botfatherStatus" role="status">正在生成二维码…</span></div></div>
+              <form id="credentialForm" class="credential-form">
+                <div class="form-grid" id="formFields"></div>
+                <p class="form-hint" id="formHint"></p>
+                <div class="form-actions"><span id="formStatus" role="alert"></span><button class="text-button hidden" id="cancelEditBtn" type="button">取消</button><button class="button primary" id="saveBtn" type="submit">保存并连接</button></div>
+              </form>
+              <button class="botfather text-button hidden" id="botfatherBtn" type="button">在 BotFather 创建机器人<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5m0-5-8 8M9 5H5v14h14v-4" /></svg></button>
+            </div>
+            <div class="pair-code hidden" id="bindPanel" role="status"><div><p>在与机器人的聊天中发送</p><strong id="bindCmdText" class="mono">/bind ————</strong><span id="bindCountdown"></span></div><button class="button secondary small" id="bindCopyBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="12" rx="2" /><path d="M16 8V4H5v12h3" /></svg>复制命令</button><i id="bindBar"></i></div>
+            <button class="button secondary small hidden" id="genCodeBtn" type="button">生成绑定命令</button>
+          </section>
+
+          <section class="settings-section" id="settingsPanel" aria-label="机器人设置">
+            <div class="setting-row reply-row"><div><h3>回复颗粒度</h3><p id="replyDescription">基于 Card JSON 2.0 流式卡片，工具调用只显示折叠摘要</p></div><div class="segmented" role="group" aria-label="回复颗粒度"><button type="button" id="cardModeBtn" data-mode="streaming_card" aria-disabled="true">流式卡片</button><button type="button" id="textModeBtn" data-mode="standard">标准回复</button><button type="button" id="fullModeBtn" data-mode="full">完整回复</button><button type="button" id="summaryModeBtn" data-mode="summary">摘要回复</button></div></div>
+            <div class="setting-row"><div><h3 id="remoteConfigTitle">允许远程配置切换</h3><p id="remoteConfigDescription">控制项目、模型、思考、模式和权限切换；所有渠道共用，仍受项目范围及宿主确认约束。</p></div><button class="switch" id="remoteConfigToggle" type="button" role="switch" aria-checked="false" aria-labelledby="remoteConfigTitle" aria-describedby="remoteConfigDescription" disabled><span></span></button></div>
+            <div class="setting-row"><div><h3>项目访问范围</h3><p id="scopeDescription">可使用所有项目，仍受桌面会话权限约束</p></div><select id="scopeMode" aria-label="项目访问范围"><option value="all">所有项目</option><option value="selected">指定项目</option></select></div>
+            <div id="scopeChoices" class="hidden"><div id="scopeList"></div><button class="text-button" id="scopeRefreshBtn" type="button">刷新项目列表</button></div>
+            <div class="scope-actions"><span id="scopeStatus" role="status"></span><button class="button secondary small hidden" id="scopeSaveBtn" type="button">保存范围</button></div>
+          </section>
+
+
+          <details class="advanced" id="advanced"><summary>运行记录<span id="activitySummary"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4" /></svg></summary><div class="advanced-body"><div id="snapshot" class="snapshot"></div><pre id="log">暂无运行记录</pre><div id="sessionList"></div></div></details>
+          <button class="clear-button hidden" id="clearCredBtn" type="button">清除此渠道的登录凭据</button>
+        </main>
+      </div>
+    </div>
+
+    <dialog id="confirmDialog"><form method="dialog"><div class="dialog-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5m0 3h.01M10.3 3.8 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0Z" /></svg></div><h2 id="confirmTitle"></h2><p id="confirmText"></p><div class="dialog-actions"><button class="button secondary" value="cancel">取消</button><button class="button danger" id="confirmAction" value="confirm"></button></div></form></dialog>
+    <div class="toast" id="toast" role="status"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>
