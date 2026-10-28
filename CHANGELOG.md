@@ -2,7 +2,9 @@
 
 本文件记录 Pi-Desktop 机器人插件的变更。格式遵循 Keep a Changelog。
 
-## [0.1.8]
+## [1.0.0]
+
+首个正式版本：通过飞书、Telegram、微信官方 iLink 协议和钉钉 Stream 接入本机 PI-Desktop Agent，发送任务、接收结果、回答交互问题、中断执行与审阅 Plan 检查点；含控制面板、扫码接入、配对码校验、文件回传、回复颗粒度与项目范围设置。
 
 - 修正公共 HTTP 客户端的完整请求体发送方式，使用 `end(body)` 自动生成正确字节长度，避免 JSON 和文件请求不必要地采用 chunked 传输。
 - 微信扫码与消息接口补齐 `iLink-App-Id`、编码后的 `iLink-App-ClientVersion`，与公开 iLink 客户端的请求头格式对齐。

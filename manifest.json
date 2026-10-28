@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "pi.mobile-remote-control",
   "name": "Pi-Desktop 机器人",
-  "version": "0.1.8",
+  "version": "1.0.0",
   "description": "Connect PI-Desktop Agent to Feishu, Telegram and WeChat bots. Send tasks, receive results and respond to Agent questions from your chat tools.",
   "i18n": {
     "en": {
