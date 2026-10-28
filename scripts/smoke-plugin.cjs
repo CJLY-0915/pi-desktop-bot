@@ -13,6 +13,8 @@ Module._load = function (name, ...args) {
   }
   return originalLoad.call(this, name, ...args);
 };
+// 以隔离安装目录为基准加载：require 的 specifier 必须是字面量，动态拼接会被插件中心审计判为动态模块加载。
+const loadFromRoot = Module.createRequire(path.join(root, "package.json"));
 
 async function main() {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "bot-install-smoke-"));
@@ -26,19 +28,19 @@ async function main() {
     events: { on() {}, off() {} },
   };
   try {
-    plugin = require(path.join(root, "main.js"));
-    const qr = require(path.join(root, "lib/qr.cjs"));
+    plugin = loadFromRoot("./main.js");
+    const qr = loadFromRoot("./lib/qr.cjs");
     const png = await qr.qrDataUrl(qr.BOTFATHER_URL);
     assert.match(png, /^data:image\/png;base64,/);
     assert.equal(Buffer.from(png.split(",")[1], "base64").subarray(1, 4).toString(), "PNG");
-    const feishu = require(path.join(root, "vendor/feishu.cjs"));
-    const dingtalk = require(path.join(root, "vendor/dingtalk.cjs"));
+    const feishu = loadFromRoot("./vendor/feishu.cjs");
+    const dingtalk = loadFromRoot("./vendor/dingtalk.cjs");
     assert.equal(typeof feishu.WSClient, "function");
     assert.equal(typeof feishu.EventDispatcher, "function");
     assert.equal(typeof dingtalk.DWClient, "function");
     assert.equal(typeof dingtalk.TOPIC_ROBOT, "string");
-    require(path.join(root, "lib/feishu.cjs"));
-    require(path.join(root, "lib/dingtalk.cjs"));
+    loadFromRoot("./lib/feishu.cjs");
+    loadFromRoot("./lib/dingtalk.cjs");
     await plugin.onLoad();
     assert.equal(registeredCommand.id, "mobile-remote.openPanel");
     assert.equal(typeof registeredService.start, "function");

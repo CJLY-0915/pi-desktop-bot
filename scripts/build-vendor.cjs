@@ -5,12 +5,19 @@ const path = require("node:path");
 const { build } = require("esbuild");
 const root = path.resolve(__dirname, "..");
 
+// 打包入口源码显式列出：入口只接受字面量 require，动态拼接会被插件中心审计判为动态模块加载。
+const BUNDLES = [
+  { name: "qrcode", contents: 'module.exports = require("qrcode");' },
+  { name: "feishu", contents: 'module.exports = require("@larksuiteoapi/node-sdk");' },
+  { name: "dingtalk", contents: 'module.exports = require("dingtalk-stream");' },
+];
+
 async function main() {
   const packages = new Map();
-  for (const [name, dependency] of Object.entries({ qrcode: "qrcode", feishu: "@larksuiteoapi/node-sdk", dingtalk: "dingtalk-stream" })) {
+  for (const { name, contents } of BUNDLES) {
     const result = await build({
       absWorkingDir: root,
-      stdin: { contents: `module.exports = require(${JSON.stringify(dependency)});`, resolveDir: root },
+      stdin: { contents, resolveDir: root },
       outfile: path.join(root, "vendor", `${name}.cjs`),
       bundle: true, platform: "node", format: "cjs", target: "node18", minify: true,
       legalComments: "inline", metafile: true,
