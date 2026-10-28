@@ -59,3 +59,14 @@ test("摘要不允许用户输入关闭代码跨度或插入标签、换行和 M
   assert.ok(summary.includes("\\*\\*Bash\\*\\*"));
   assert.ok(summary.includes("｀x｀"));
 });
+
+test("command 或 file_path 为空串时仍回退到真实路径，不丢操作目标", () => {
+  // 宿主把模型发的 file_path 规整为规范名 path，别名位置可能留下空串。
+  assert.equal(formatToolSummary({ toolName: "Edit", args: { command: "", path: "src/a.ts" }, phase: "end" }, "/repo"), "完成 · Edit · `src/a.ts`");
+  assert.equal(formatToolSummary({ toolName: "Edit", args: { file_path: "", path: "src/a.ts" }, phase: "end" }, "/repo"), "完成 · Edit · `src/a.ts`");
+  assert.equal(formatToolSummary({ toolName: "Read", args: { command: "   ", path: "src/a.ts" }, phase: "end" }, "/repo"), "完成 · Read · `src/a.ts`");
+  assert.equal(formatToolSummary({ toolName: "Write", args: { cmd: "", filePath: "", path: "C:/repo/src/b.ts" }, phase: "end" }, "C:/repo"), "完成 · Write · `src/b.ts`");
+  // 两者都为空时仍然不显示目标，不伪造内容。
+  assert.equal(formatToolSummary({ toolName: "Bash", args: { command: "" }, phase: "end" }), "完成 · Bash");
+  assert.equal(formatToolSummary({ toolName: "Read", args: {}, phase: "end" }), "完成 · Read");
+});
